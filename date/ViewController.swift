@@ -7,6 +7,7 @@
 //
 
 import UIKit
+let notAllowedCharacters = "/_-=+";
 
 class ViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var scrollView: UIScrollView!
@@ -28,14 +29,55 @@ class ViewController: UIViewController, UITextFieldDelegate {
     }
     
     func textField(textField: UITextField, shouldChangeCharactersInRange range: NSRange, replacementString string: String) -> Bool {
-        let currentCharacterCount = dobField.text?.characters.count ?? 0
-        if (range.length + range.location > currentCharacterCount){
+        
+        if range.length > 0
+        {
+            return true
+        }
+        
+        //Dont allow empty strings
+        if string == " "
+        {
             return false
         }
-        let newLength = currentCharacterCount + string.characters.count - range.length
-        return newLength <= 10
         
+        if textField == dobField {
+
         
+        //Check for max length including the spacers we added
+        if range.location == 10
+        {
+            return false
+        }
+        
+        var originalText = textField.text
+        let replacementText = string.stringByReplacingOccurrencesOfString("/", withString: "")
+        
+        //Verify entered text is a numeric value
+        let digits = NSCharacterSet.decimalDigitCharacterSet()
+        for char in replacementText.unicodeScalars
+        {
+            if !digits.longCharacterIsMember(char.value)
+            {
+                return false
+            }
+        }
+        
+        if originalText!.characters.count == 2 || originalText!.characters.count == 5
+        {
+            originalText?.appendContentsOf("/")
+            textField.text = originalText
+        }
+            let set = NSCharacterSet(charactersInString: notAllowedCharacters);
+            let inverted = set.invertedSet;
+            
+            let filtered = string
+                .componentsSeparatedByCharactersInSet(inverted)
+                .joinWithSeparator("");
+            return filtered != string;
+            
+        }
+        return true
     }
 
     func textFieldDidBeginEditing(textField: UITextField) {
